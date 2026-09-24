@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# The runtime has no third-party dependencies: it is C++20 and the standard
+# library only. On Windows a static consumer still needs the socket library
+# because the publisher transport lives in the same archive; that is expressed
+# on the imported target itself, not here.
+
+include("${CMAKE_CURRENT_LIST_DIR}/CableAttachmentRegistryTargets.cmake")
+
+check_required_components(CableAttachmentRegistry)

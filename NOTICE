@@ -1,0 +1,19 @@
+Cable Attachment Registry
+
+Copyright © Summon Software Labs
+
+Cable Attachment Registry is an open-source, vendor-neutral runtime for physical
+attachment identity and topology provenance across cables, patching, ports,
+endpoints and attachment lifecycle.
+
+This product is licensed under the Apache License, Version 2.0. See the
+LICENSE file in this distribution for the full license text.
+
+Cable Attachment Registry does not collect or transmit any telemetry. Every
+record it writes is written to local files chosen by the operator and never
+leaves the machine running the software.
+
+Cable Attachment Registry accepts contributions from individuals and
+organizations on the terms of the Apache License 2.0 without requiring a
+Contributor License Agreement (CLA). See CONTRIBUTING.md for contribution
+guidance.

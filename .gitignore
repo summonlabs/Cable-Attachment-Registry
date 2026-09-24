@@ -1,0 +1,38 @@
+# Build trees
+/build/
+/build-*/
+/out/
+/install/
+/install-*/
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+.ninja_deps
+.ninja_log
+compile_commands.json
+
+# Editor and IDE state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Local runtime residue
+*.carsnap
+*.carstore
+*.log
+*.tmp
+*.bak
+*.pdb
+*.ilk
+*.dSYM/
+crash-*
+*.dmp
+
+# Sanitizer and coverage residue
+*.gcda
+*.gcno
+*.gcov
