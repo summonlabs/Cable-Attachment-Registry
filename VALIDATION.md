@@ -145,6 +145,31 @@ fixed before the release commit.
 | Registering n objects scanned all n registrations to detect label reuse | Benchmarks: ingest throughput fell as the object count grew | A label index that is rebuilt when the state is replaced and updated as registrations are applied; a hit is always re-checked against the object's own registrations |
 | Fenced-claim counting ran one pass over the whole state per object | Benchmarks: snapshot construction was quadratic | One pass over the records, grouped by object |
 
+## Fresh-clone closure
+
+Performed from the committed state, in a clone made outside this working tree:
+
+@=@=@=@
+git clone <repository> %TEMP%\car-fresh-clone
+cd %TEMP%\car-fresh-clone
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+cmake --install build --prefix install
+cmake -S tests/package_consumer -B consumer-build "-DCMAKE_PREFIX_PATH=<clone>/install" -DCMAKE_BUILD_TYPE=Release
+cmake --build consumer-build --config Release
+consumer-build/Release/consumer.exe
+@=@=@=@
+
+Result: the clone checked out commit @7695abf@, configured and built Release
+warning-clean, ran all 11 suites to natural completion with 100% passed, installed
+the package, and built and ran the independent consumer, which printed the same
+graph digest as the in-tree run. The primary runtime artifact was then exercised
+from the clone: @cable-registry-daemon@ was started over a store outside the
+clone, @cable-registry-cli@ published an evidence script to it over loopback,
+and separate client processes read back @Attached@ with @Validated@ claims, the
+graph digest, and a canonical snapshot export of 653 bytes.
+
 ## Genuine limitations
 
 - Validation was performed on Windows x64 with MSVC only. The POSIX socket, file
