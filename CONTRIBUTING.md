@@ -33,8 +33,6 @@ AI or tool attribution of any kind.
 - New behavior must be covered by tests and pass the full test suite.
   Determinism, fencing, conflict preservation and persistence recovery claims
   need a test that would fail if the guarantee regressed.
-- Do not add timeouts, watchdogs or forced termination to tests. A hanging test
-  is a defect in the code under test, not a scheduling accident.
 - Do not introduce third-party dependencies into the runtime. The library is
   deliberately dependency-free and header-plus-standard-library only.
 - Documentation must be updated for public API or behavior changes.
