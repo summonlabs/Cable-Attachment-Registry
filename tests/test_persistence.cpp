@@ -3,11 +3,13 @@
 // Copyright 2026 Summon Software Labs.
 // Licensed under the Apache License, Version 2.0.
 
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "cable_registry/cable_attachment_registry.hpp"
@@ -412,4 +414,31 @@ CR_TEST_CASE(persistence, fsync_can_be_disabled_without_changing_the_recovered_g
   CR_CHECK(reopened.has_value());
   CR_CHECK(reopened.value().registry->GraphDigest().value() == before);
   reopened.value().registry->Close();
+}
+
+CR_TEST_CASE(persistence, a_compaction_waits_for_a_reader_of_the_log) {
+  TempDir directory("compact-reader");
+  const std::string path = directory.file("registry.log");
+  const Digest256 before = populate(path);
+  Outcome<Opened> opened = open_store(path);
+  CR_CHECK(opened.has_value());
+  Registry& registry = *opened.value().registry;
+  bool reader_opened = false;
+  bool compacted = false;
+  {
+    // Another tool reading the store (an inspection, a backup or antivirus
+    // scan) holds the log open while the compaction replaces it, and closes it
+    // shortly after.
+    std::ifstream reader(path, std::ios::binary);
+    reader_opened = reader.is_open();
+    std::thread compactor([&registry, &compacted] { compacted = registry.Compact().has_value(); });
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    reader.close();
+    compactor.join();
+  }
+  CR_CHECK(reader_opened);
+  // The replacement waits for the reader instead of refusing the compaction.
+  CR_CHECK(compacted);
+  CR_CHECK(registry.GraphDigest().value() == before);
+  registry.Close();
 }

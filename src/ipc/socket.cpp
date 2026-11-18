@@ -184,7 +184,13 @@ Outcome<Socket> Socket::listen_on(const std::string& address,
     ::freeaddrinfo(resolved);
     return make_error<Socket>(socket_error("socket"));
   }
+#if defined(_WIN32)
+  // SO_REUSEADDR on Windows lets a second socket bind a port that is still
+  // listening; exclusive use makes that second bind fail instead.
+  set_option(raw, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, 1);
+#else
   set_option(raw, SOL_SOCKET, SO_REUSEADDR, 1);
+#endif
   if (::bind(raw, resolved->ai_addr, static_cast<int>(resolved->ai_addrlen)) != 0) {
     const Error failure = socket_error("bind");
     ::freeaddrinfo(resolved);

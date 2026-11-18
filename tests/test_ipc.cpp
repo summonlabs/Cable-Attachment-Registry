@@ -326,3 +326,18 @@ CR_TEST_CASE(ipc, a_peer_that_speaks_nonsense_is_rejected_and_the_server_keeps_s
   running.server->Stop();
   running.registry->Close();
 }
+
+CR_TEST_CASE(ipc, a_second_server_cannot_take_a_listening_port) {
+  Running running = start_server();
+  Outcome<std::unique_ptr<Registry>> other = Registry::Open(RegistryOptions{});
+  CR_CHECK(other.has_value());
+  ipc::ServerOptions taken;
+  taken.port = running.server->port();
+  taken.max_connections = 16;
+  Outcome<std::unique_ptr<ipc::Server>> second = ipc::Server::Start(*other.value(), taken);
+  // Two registries must never share one listening port: the second bind fails.
+  CR_CHECK(!second.has_value());
+  other.value()->Close();
+  running.server->Stop();
+  running.registry->Close();
+}

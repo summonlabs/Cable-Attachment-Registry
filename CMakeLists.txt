@@ -121,7 +121,9 @@ if(CABLE_ATTACHMENT_REGISTRY_SANITIZERS)
         "-DCABLE_ATTACHMENT_REGISTRY_SANITIZERS=OFF or install that component.")
     endif()
     set(CABLE_ATTACHMENT_REGISTRY_SANITIZER_COMPILE_OPTIONS /fsanitize=address /Zi)
-    set(CABLE_ATTACHMENT_REGISTRY_SANITIZER_LINK_OPTIONS /fsanitize=address)
+    # The linker does not know /fsanitize=address (LNK4044); /DEBUG avoids
+    # LNK4302 for the sanitizer objects.
+    set(CABLE_ATTACHMENT_REGISTRY_SANITIZER_LINK_OPTIONS /INCREMENTAL:NO /DEBUG)
     message(STATUS "CableAttachmentRegistry: AddressSanitizer enabled (MSVC)")
   elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     check_cxx_compiler_flag("-fsanitize=address,undefined" CABLE_ATTACHMENT_REGISTRY_COMPILER_HAS_ASAN_UBSAN)
